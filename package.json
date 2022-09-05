@@ -1,6 +1,6 @@
 {
   "name": "ginny-mdbook",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Single page markdown website ginny component",
   "main": "lib/index.js",
   "files": [
