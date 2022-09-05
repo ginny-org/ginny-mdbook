@@ -389,33 +389,23 @@ body {
   content: '';
 }
 
-.content li {
-  position: relative;
-  padding-left: var(--size-7);
-}
-
-.content li:before {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: block;
-}
-
-.content ul li:before {
-  content: '◦';
-}
-
-.content ol {
-  counter-reset: count;
+.content ol,
+.content ul {
+  margin-left: var(--size-7);
+  padding-top: var(--size-2);
 }
 
 .content ol li {
-  counter-increment: count;
+  margin-left: var(--size-7);
+  padding-bottom: var(--size-2);
 }
 
-.content ol li:before {
-  content: counter(count);
-  font-variant-numeric: tabular-nums;
+.content ol li:last-of-type {
+  padding-bottom: 0;
+}
+
+.content ol li::marker {
+  content: counters(list-item, ".") ". ";
 }
 
 .content table th {
