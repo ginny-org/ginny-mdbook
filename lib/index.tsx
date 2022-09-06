@@ -3,6 +3,21 @@ import { join } from "path";
 import { PageContext } from "ginny";
 import { marked } from "marked";
 
+marked.use({
+  renderer: {
+    image: (href, title, text) => {
+      if (!title) {
+        return `<a href="${href}"><img src="${href}" alt="${text}"></a>`;
+      }
+
+      return `<figure>
+        <a href="${href}"><img src="${href}" alt="${text}"></a>
+        <figcaption>${marked.parseInline(title)}</figcaption>
+      </figure>`;
+    },
+  },
+});
+
 export default async (props: MdBookProperties) => {
   const styleFilename = join(__dirname, "./style.css");
   props.context.addDependency(styleFilename);
