@@ -35,6 +35,12 @@ export default async (props: MdBookProperties) => {
 
   const headings = headingTracker.root.children;
 
+  const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
   return (
     <html lang="en">
       <head>
@@ -56,7 +62,10 @@ export default async (props: MdBookProperties) => {
         <main className="content">
           <div className="content__inner">{html}</div>
         </main>
-        <div className="header">{props.title}</div>
+        <div className="header">
+          <div className="title">{props.title}</div>
+          <div className="date">{dateFormatter.format()}</div>
+        </div>
         <div className="menu">
           <ol>{headings.map((heading, i) => heading.render("", i))}</ol>
         </div>
