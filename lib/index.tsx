@@ -79,7 +79,7 @@ class Heading {
   children: Heading[] = [];
 
   constructor(readonly title: string, readonly depth: number) {
-    this.id = title.toLowerCase().replace(/ +/g, "-");
+    this.id = title.toLowerCase().replace(/[^\w]+/g, "-");
   }
 
   render(prefix: string, index: number): any {
