@@ -107,6 +107,10 @@ class HeadingTracker {
   }
 
   push(heading: Heading): void {
+    if (heading.depth > 3) {
+      return;
+    }
+
     this.makeUniqueId(heading);
 
     while (
