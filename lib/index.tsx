@@ -12,11 +12,9 @@ export default async (props: MdBookProperties) => {
   const content = (
     await Promise.all(
       props.files.map(async (file) => {
-        const filepath = join(
-          props.context.srcDir,
-          props.context.url(file) + (file.endsWith(".md") ? "" : ".md")
+        const filepath = props.context.resolve(
+          file + (file.endsWith(".md") ? "" : ".md")
         );
-
         const content = await readFile(filepath, { encoding: "utf-8" });
         props.context.addDependency(filepath);
 
