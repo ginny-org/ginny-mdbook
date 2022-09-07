@@ -534,6 +534,13 @@ body {
   }
 }
 
+.book-title {
+  text-align: center;
+  margin: var(--size-24) var(--size-16);
+  font-size: var(--size-16);
+  line-height: var(--size-20);
+}
+
 .header {
   position: fixed;
   z-index: var(--z-index-1);

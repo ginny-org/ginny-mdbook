@@ -76,7 +76,10 @@ export default async (props: MdBookProperties) => {
       </head>
       <body>
         <main className="content">
-          <div className="content__inner">{html}</div>
+          <div className="content__inner">
+            <div className="book-title">{index.title}</div>
+            {html}
+          </div>
         </main>
         <div className="header">
           <div className="title">{index.title}</div>
