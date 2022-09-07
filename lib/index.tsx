@@ -23,10 +23,11 @@ export default async (props: MdBookProperties) => {
   props.context.addDependency(styleFilename);
 
   const style = await readFile(styleFilename, { encoding: "utf-8" });
+  const index = await extractIndex(props.index, props.context);
 
   const content = (
     await Promise.all(
-      props.files.map(async (file) => {
+      index.files.map(async (file) => {
         const filepath = props.context.resolve(
           file + (file.endsWith(".md") ? "" : ".md")
         );
@@ -64,7 +65,7 @@ export default async (props: MdBookProperties) => {
           name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
-        <title>{props.title}</title>
+        <title>{index.title}</title>
         <style>{style}</style>
         {props.context.isDevelopment ? (
           <script
@@ -78,7 +79,7 @@ export default async (props: MdBookProperties) => {
           <div className="content__inner">{html}</div>
         </main>
         <div className="header">
-          <div className="title">{props.title}</div>
+          <div className="title">{index.title}</div>
           <div className="date">{dateFormatter.format()}</div>
         </div>
         <div className="menu">
@@ -88,6 +89,54 @@ export default async (props: MdBookProperties) => {
     </html>
   );
 };
+
+async function extractIndex(
+  index: string | MdBookIndex | undefined,
+  context: PageContext
+): Promise<MdBookIndex> {
+  if (typeof index === "string") {
+    return extractIndexFromFile([index], context);
+  }
+
+  if (index == null) {
+    return extractIndexFromFile(["README.md", "index.md"], context);
+  }
+
+  return index;
+}
+
+async function extractIndexFromFile(
+  tryFiles: string[],
+  context: PageContext
+): Promise<MdBookIndex> {
+  for (const file of tryFiles) {
+    try {
+      const content = await readFile(context.resolve(file), {
+        encoding: "utf-8",
+      });
+      const lexed = marked.Lexer.lex(content);
+
+      const index: MdBookIndex = { title: "", files: [] };
+
+      marked.walkTokens(lexed, (token) => {
+        if (token.type === "heading" && token.depth === 1) {
+          index.title = token.text;
+          return;
+        }
+
+        if (token.type === "link" && token.href.endsWith(".md")) {
+          index.files.push(context.resolve(token.href));
+        }
+      });
+
+      return index;
+    } catch {}
+  }
+
+  throw new Error(
+    `Could not find index file from candidates: ${tryFiles.join(", ")}`
+  );
+}
 
 class Heading {
   id: string;
@@ -156,7 +205,11 @@ class HeadingTracker {
 }
 
 export interface MdBookProperties {
-  title: string;
   context: PageContext;
+  index?: string | MdBookIndex;
+}
+
+export interface MdBookIndex {
+  title: string;
   files: string[];
 }
