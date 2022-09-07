@@ -114,9 +114,12 @@ async function extractIndexFromFile(
 ): Promise<MdBookIndex> {
   for (const file of tryFiles) {
     try {
-      const content = await readFile(context.resolve(file), {
+      const filepath = context.resolve(file);
+      const content = await readFile(filepath, {
         encoding: "utf-8",
       });
+
+      context.addDependency(filepath);
       const lexed = marked.Lexer.lex(content);
 
       const index: MdBookIndex = { title: "", files: [] };
