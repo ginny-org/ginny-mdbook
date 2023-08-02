@@ -95,9 +95,7 @@ export default async (props: MdBookProperties) => {
         ) : null}
       </head>
       <body>
-        <script type="text/javascript">
-          mermaid.initialize({`{theme: "neutral"}`});
-        </script>
+        {mermaidjs ? <script type="text/javascript">mermaid.initialize({`{theme: "neutral"}`});</script> : null}
         <main className="content">
           <div className="content__inner">
             <div className="book-title">{index.title}</div>
