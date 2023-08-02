@@ -20,6 +20,14 @@ marked.use({
         <figcaption>${marked.parseInline(title)}</figcaption>
       </figure>`;
     },
+
+    code: (code, language) => {
+      if (language === "mermaid") {
+        return '<pre class="mermaid">' + code + '</pre>';
+      } else {
+        return '<pre><code>' + code + '</code></pre>';
+      }
+    }
   },
 });
 
@@ -45,11 +53,14 @@ export default async (props: MdBookProperties) => {
   ).join("\n\n");
 
   const headingTracker = new HeadingTracker();
+  let hasMermaid = false;
 
   const html = marked(content, {
-    walkTokens: (token) => {
+    walkTokens: async (token) => {
       if (token.type === "heading") {
         headingTracker.push(new Heading(token.text, token.depth));
+      } else if (token.type === "code" && token.lang === "mermaid") {
+        hasMermaid = true;
       }
     },
   });
@@ -62,6 +73,9 @@ export default async (props: MdBookProperties) => {
     year: "numeric",
   });
 
+  const mermaidFilename = join(__dirname, "./mermaid.min.js");
+  const mermaidjs = hasMermaid ? await readFile(mermaidFilename, { encoding: "utf-8" }) : null;
+
   return (
     <html lang="en">
       <head>
@@ -72,6 +86,7 @@ export default async (props: MdBookProperties) => {
         />
         <title>{index.title}</title>
         <style>{style}</style>
+        {mermaidjs ? <script type="text/javascript">{mermaidjs}</script> : null}
         {props.context.isDevelopment ? (
           <script
             type="text/javascript"
@@ -80,6 +95,9 @@ export default async (props: MdBookProperties) => {
         ) : null}
       </head>
       <body>
+        <script type="text/javascript">
+          mermaid.initialize({`{theme: "neutral"}`});
+        </script>
         <main className="content">
           <div className="content__inner">
             <div className="book-title">{index.title}</div>
@@ -215,12 +233,34 @@ class HeadingTracker {
   }
 }
 
+/**
+ * MdBook properties.
+ */
 export interface MdBookProperties {
+  /** The ginny page context (automatically injected by ginny). */
   context: PageContext;
+
+  /**
+   * Index of the book. This can either:
+   *
+   * - be a string, referencing a markdown file. In this case the title of the book comes from the
+   *   level 1 header of the referenced file. Any links to markdowns become individual chapters of
+   *   the book.
+   * - be an MdBookIndex object, where title and list of chapter markdown files is explicitly given.
+   *
+   * By default this will read the book index from a README.md file in the same location as the tsx
+   * file including the <MdBook/> tag.
+   */
   index?: string | MdBookIndex;
 }
 
+/**
+ * An explicit book index definition providing a title and files for the book contents.
+ */
 export interface MdBookIndex {
+  /** The title of the book. */
   title: string;
+
+  /** Files that make up the chapters of the book. */
   files: string[];
 }
