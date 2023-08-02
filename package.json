@@ -29,6 +29,8 @@
   },
   "dependencies": {
     "@types/marked": "^5.0.1",
-    "marked": "^5.0.1"
+    "marked": "^5.0.1",
+    "marked-gfm-heading-id": "^3.0.4",
+    "marked-mangle": "^1.1.0",
   }
 }

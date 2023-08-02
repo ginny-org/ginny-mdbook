@@ -2,6 +2,11 @@ import { readFile } from "fs/promises";
 import { join } from "path";
 import { PageContext } from "ginny";
 import { marked } from "marked";
+import { mangle } from "marked-mangle";
+import { gfmHeadingId } from "marked-gfm-heading-id";
+
+marked.use(mangle());
+marked.use(gfmHeadingId());
 
 marked.use({
   renderer: {
