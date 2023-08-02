@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>ginny MdBook example</title>
+  <style>
+    *,
+    ::before,
+    ::after {
+      box-sizing: border-box;
+      border-width: 0;
+      border-style: solid;
+      border-color: currentColor;
+    }
+
+    html {
+      font-size: 16px;
+      line-height: 1;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    ul,
+    ol {
+      padding: 0;
+    }
+
+    body,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    blockquote,
+    p,
+    ol,
+    ul,
+    li,
+    input,
+    hr,
+    pre {
+      margin: 0;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    th {
+      font: inherit;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    button {
+      display: block;
+      padding: 0;
+      border: 0;
+      margin: 0;
+      background-color: transparent;
+      border-radius: 0;
+    }
+
+    :root {
+      --base-font-size-sm: 15px;
+      --base-font-size-md: 16px;
+      --base-font-size-lg: 18px;
+      --base-font-size-xl: 20px;
+      --border-radius: 0.25rem;
+      --color-bg-1: #fff;
+      --color-bg-2: #f5f5f5;
+      /* 96% */
+      --color-fg-1: #000;
+      --color-fg-2: #303030;
+      /* 80% */
+      --color-fg-3: #7f7f7f;
+      /* 50% */
+      --color-fg-4: #a6a6a6;
+      /* 35% */
+      --color-fg-5: #ccc;
+      /* 20% */
+      --color-accent: #946709;
+      --color-addition-fg: #22863a;
+      --color-addition-bg: #f0fff4;
+      --color-deletion-fg: #b31d28;
+      --color-deletion-bg: #ffeef0;
+      --color-em: #17c73e;
+      --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial,
+        sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+      --font-family-code: SFMono-Regular, Consolas, 'Liberation Mono', Menlo,
+        monospace;
+      --font-weight-regular: normal;
+      --font-weight-bold: bold;
+      --font-size-code: 90%;
+      --font-size-sm: 0.8rem;
+      --font-size-md: 1rem;
+      --line-height-sm: 1.25rem;
+      --line-height-md: 1.75rem;
+      --size-1: 0.25rem;
+      --size-2: 0.5rem;
+      --size-3: 0.75rem;
+      --size-4: 1rem;
+      --size-5: 1.25rem;
+      --size-6: 1.5rem;
+      --size-7: 1.75rem;
+      --size-8: 2rem;
+      --size-9: 2.25rem;
+      --size-10: 2.5rem;
+      --size-12: 3rem;
+      --size-16: 4rem;
+      --size-20: 5rem;
+      --size-24: 6rem;
+      --z-index-1: 1;
+
+      /* Dimensions */
+      --scroll-margin-top: calc(var(--top-bar-height) + 40px);
+      --toc-width: 16rem;
+      --top-bar-height: 3rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        color-scheme: dark;
+        --color-bg-1: #000;
+        --color-bg-2: #141414;
+        /* 92% */
+        --color-fg-1: #fff;
+        --color-fg-2: #ccc;
+        /* 80% */
+        --color-fg-3: #7f7f7f;
+        /* 50% */
+        --color-fg-4: #595959;
+        /* 35% */
+        --color-fg-5: #333;
+        /* 20% */
+        --color-accent: #f7eab2;
+        --color-addition-fg: #aff5b4;
+        --color-addition-bg: #033a16;
+        --color-deletion-fg: #ffdcd7;
+        --color-deletion-bg: #67060c;
+      }
+    }
+
+    html {
+      font-size: var(--base-font-size-sm);
+    }
+
+    body {
+      background-color: var(--color-bg-1);
+      color: var(--color-fg-1);
+      font-family: var(--font-family);
+    }
+
+    .--menu-visible {
+      overflow: hidden;
+    }
+
+    @media (min-width: 640px) {
+      html {
+        font-size: var(--base-font-size-md);
+      }
+
+      .--menu-visible {
+        overflow: visible;
+      }
+    }
+
+    @media (min-width: 960px) {
+      html {
+        font-size: var(--base-font-size-lg);
+      }
+    }
+
+    @media (min-width: 1280px) {
+      html {
+        font-size: var(--base-font-size-xl);
+      }
+    }
+
+
+    .menu {
+      position: fixed;
+      top: var(--top-bar-height);
+      /* `.top-bar` height */
+      bottom: 0;
+      left: 0;
+      display: none;
+      width: 100%;
+      padding: var(--size-3) 0;
+      border-right: 1px solid var(--color-fg-5);
+      background-color: var(--color-bg-1);
+      font-size: var(--font-size-md);
+      line-height: var(--line-height-md);
+      overflow-y: auto;
+    }
+
+    .--menu-visible .menu {
+      display: block;
+    }
+
+    .menu a {
+      position: relative;
+      display: block;
+      padding: var(--size-1) var(--size-4);
+      color: var(--color-fg-3);
+      overflow-wrap: break-word;
+    }
+
+    .menu li li a {
+      padding-left: var(--size-8);
+    }
+
+    .menu li li li a {
+      padding-left: var(--size-12);
+    }
+
+    .menu li li li li a {
+      padding-left: var(--size-16);
+    }
+
+    .menu li li li li li a {
+      padding-left: var(--size-20);
+    }
+
+    .menu li li li li li li a {
+      padding-left: var(--size-24);
+    }
+
+    .menu a:not(.--scroll-spy-active):hover {
+      color: var(--color-fg-2);
+    }
+
+    .menu a:focus-visible {
+      background-color: var(--color-fg-1);
+      color: var(--color-bg-1);
+      outline: 0;
+    }
+
+    .menu a[target='_blank']:after {
+      content: ' ↗';
+    }
+
+    .menu .--scroll-spy-active {
+      color: var(--color-fg-1);
+    }
+
+    .menu code {
+      font-family: var(--font-family-code);
+      font-size: var(--font-size-code);
+    }
+
+    @media (min-width: 960px) {
+      .menu {
+        width: var(--toc-width);
+        font-size: var(--font-size-sm);
+        line-height: var(--line-height-sm);
+      }
+
+      .--no-toc .menu {
+        display: none;
+      }
+
+      .menu__links {
+        display: none;
+      }
+    }
+
+    @media (min-width: 1280px) {
+      .menu {
+        display: block;
+        border-right: 0;
+      }
+    }
+
+    .content {
+      padding: 0 var(--size-4) 0 var(--size-4);
+      font-size: var(--font-size-md);
+      font-weight: var(--font-weight-regular);
+      line-height: var(--line-height-md);
+    }
+
+    .content__inner {
+      padding: var(--top-bar-height) 0 var(--size-12) 0;
+    }
+
+    .content__inner> :not(pre) {
+      overflow-wrap: break-word;
+    }
+
+
+    .content {
+      counter-reset: chapter section subsection figures;
+    }
+
+    .content h1 {
+      counter-reset: section subsection;
+    }
+
+    .content h1::before {
+      counter-increment: chapter;
+      content: counter(chapter) ". ";
+      padding-right: var(--size-4)
+    }
+
+    .content h2 {
+      counter-reset: subsection;
+    }
+
+    .content h2::before {
+      counter-increment: section;
+      content: counter(chapter) "." counter(section) ". ";
+      padding-right: var(--size-3);
+    }
+
+    .content h3::before {
+      counter-increment: subsection;
+      content: counter(chapter) "." counter(section) "." counter(subsection) ". ";
+      padding-right: var(--size-1)
+    }
+
+    .content h1,
+    .content h2,
+    .content h3,
+    .content h4,
+    .content h5,
+    .content h6 {
+      font-weight: var(--font-weight-bold);
+    }
+
+    .content h1 {
+      margin-top: var(--size-20);
+      margin-bottom: var(--size-4);
+      font-size: var(--size-8);
+      font-weight: var(--font-weight-bold);
+      letter-spacing: -0.0625rem;
+      line-height: var(--size-10);
+    }
+
+    .content h2 {
+      margin-top: var(--size-12);
+      font-size: var(--size-6);
+      letter-spacing: -0.03125rem;
+      line-height: var(--size-9);
+    }
+
+    .content h3 {
+      margin-top: var(--size-8);
+      font-size: var(--size-5);
+      letter-spacing: -0.03125rem;
+      line-height: var(--size-8);
+    }
+
+    .content h4 {
+      margin-top: var(--size-6);
+      font-size: var(--size-4);
+    }
+
+    .content h5 {
+      margin-top: var(--size-4);
+      font-size: var(--size-3);
+    }
+
+    .content h6 {
+      margin-top: var(--size-4);
+      color: var(--color-fg-2);
+      font-size: var(--size-3);
+      font-style: italic;
+    }
+
+    .content [id] {
+      scroll-margin-top: var(--scroll-margin-top);
+    }
+
+    .header-link {
+      display: inline-block;
+      padding: 0 var(--size-4);
+      color: var(--color-fg-3);
+      font-size: var(--font-size-md);
+      font-weight: var(--font-weight-bold);
+    }
+
+    .header-link:hover {
+      color: var(--color-fg-2);
+    }
+
+    .content hr {
+      width: 100%;
+      height: 1px;
+      border: 0;
+      margin-top: var(--size-12);
+      background-color: var(--color-fg-5);
+    }
+
+    .content a:not(.header-link) {
+      color: currentColor;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.1875rem;
+    }
+
+    .content a:not(.header-link):hover {
+      text-decoration: none;
+    }
+
+    .content a:focus-visible,
+    .content a:focus-visible code {
+      background-color: var(--color-fg-1);
+      color: var(--color-bg-1);
+      outline: 0;
+    }
+
+    .content__inner>blockquote,
+    .content__inner>p,
+    .content__inner div p,
+    .content__inner>ul,
+    .content__inner>ol,
+    .content__inner>table {
+      margin-top: var(--size-4);
+    }
+
+    .content blockquote {
+      position: relative;
+      padding: var(--size-2) 0 var(--size-2) var(--size-7);
+      color: var(--color-fg-3);
+    }
+
+    .content blockquote:before {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 2px;
+      display: block;
+      width: 1px;
+      background-color: var(--color-fg-5);
+      content: '';
+    }
+
+    .content ol,
+    .content ul {
+      margin-left: var(--size-7);
+      padding-top: var(--size-2);
+    }
+
+    .content li {
+      margin-left: var(--size-7);
+      padding-bottom: var(--size-2);
+    }
+
+    .content li:last-of-type {
+      padding-bottom: 0;
+    }
+
+    .content ol li::marker {
+      content: counters(list-item, ".") ". ";
+    }
+
+    .content table {
+      border-spacing: var(--size-7) 0;
+    }
+
+    .content table th {
+      color: var(--color-fg-3);
+    }
+
+    .content img {
+      display: inline-block;
+      max-width: 100%;
+    }
+
+    .content code {
+      padding: var(--size-1);
+      background-color: var(--color-bg-2);
+      border-radius: var(--border-radius);
+      color: var(--color-fg-2);
+      font-family: var(--font-family-code);
+      font-size: var(--font-size-code);
+    }
+
+    .content pre {
+      margin: var(--size-6) 0;
+      color: var(--color-fg-2);
+    }
+
+    .content pre code {
+      display: block;
+      padding: var(--size-4);
+      overflow-x: auto;
+    }
+
+    .content strong {
+      font-weight: var(--font-weight-bold);
+    }
+
+    @media (min-width: 640px) {
+      .content__inner {
+        max-width: 70ch;
+        margin: 0 auto;
+      }
+    }
+
+    @media (min-width: 1280px) {
+      .content {
+        margin-left: var(--toc-width);
+      }
+
+      .content__inner {
+        max-width: 66ch;
+      }
+    }
+
+    @media (min-width: 1600px) {
+      .content__inner {
+        max-width: 70ch;
+      }
+
+      .content h1,
+      .content h2,
+      .content h3,
+      .content h4,
+      .content h5,
+      .content h6 {
+        position: relative;
+        display: block;
+        padding-left: var(--size-9);
+        margin-left: calc(-1 * var(--size-9));
+      }
+
+      .header-link {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        display: block;
+        padding: 0 var(--size-3);
+      }
+    }
+
+    @media (hover: hover) {
+      .header-link {
+        opacity: 0;
+      }
+
+      .content h1:hover .header-link,
+      .content h2:hover .header-link,
+      .content h3:hover .header-link,
+      .content h4:hover .header-link,
+      .content h5:hover .header-link,
+      .content h6:hover .header-link {
+        opacity: 1;
+      }
+    }
+
+    .book-title {
+      text-align: center;
+      margin: var(--size-24) var(--size-16);
+      font-size: var(--size-16);
+      line-height: var(--size-20);
+    }
+
+    .header {
+      position: fixed;
+      z-index: var(--z-index-1);
+      top: 0;
+      right: 0;
+      left: 0;
+      display: flex;
+      background-color: var(--color-bg-1);
+      font-size: var(--font-size-md);
+      line-height: var(--top-bar-height);
+      overflow-x: auto;
+      white-space: nowrap;
+      color: var(--color-fg-3);
+      padding: 0 var(--size-4);
+    }
+
+    .header:before {
+      position: fixed;
+      top: var(--top-bar-height);
+      right: 0;
+      left: 0;
+      display: block;
+      height: 1px;
+      background-color: var(--color-fg-5);
+      content: '';
+      pointer-events: none;
+    }
+
+    .header .title {
+      flex-grow: 1;
+    }
+
+    .header .date {
+      font-size: 0.8em;
+    }
+
+    figure {
+      counter-increment: figures;
+    }
+
+    figure,
+    figcaption {
+      text-align: center;
+    }
+
+    figcaption {
+      font-size: 0.75em;
+    }
+
+    figcaption::before {
+      content: "Figure " counter(figures) ":";
+      padding-right: var(--size-2);
+    }
+
+    em {
+      color: var(--color-em);
+      text-decoration: dashed underline;
+      font-style: normal;
+    }
+
+    @media print {
+      @page {
+        margin: 2cm;
+      }
+
+      .header {
+        position: absolute;
+        overflow: visible;
+      }
+
+      .header:before {
+        position: absolute;
+      }
+
+      .menu {
+        display: none;
+      }
+
+      table,
+      img,
+      svg,
+      p,
+      blockquote,
+      h1,
+      h2,
+      h3,
+      h4 {
+        break-inside: avoid;
+      }
+
+      h1::after,
+      h2::after,
+      h3::after,
+      h4::after {
+        content: "";
+        display: block;
+        height: 100px;
+        margin-bottom: -100px;
+      }
+
+      div,
+      p {
+        widows: 4;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <main class="content">
+    <div class="content__inner">
+      <div class="book-title">ginny MdBook example</div>
+      <h1 id="introduction">Introduction</h1>
+      <p>This is an example introduction chapter.</p>
+      <h1 id="conclusion">Conclusion</h1>
+      <p>This is an example conclusion chapter.</p>
+      <h1 id="lala">lala</h1>
+    </div>
+  </main>
+  <div class="header">
+    <div class="title">ginny MdBook example</div>
+    <div class="date">August 2, 2023</div>
+  </div>
+  <div class="menu">
+    <ol>
+      <li><a href="#introduction">1. Introduction</a></li>
+      <li><a href="#conclusion">2. Conclusion</a></li>
+      <li><a href="#lala">3. lala</a></li>
+    </ol>
+  </div>
+</body>
+
+</html>
