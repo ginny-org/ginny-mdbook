@@ -31,6 +31,9 @@ marked.use({
   },
 });
 
+/**
+ * The MdBook component renders markdown files in a single page book format.
+ */
 export default async (props: MdBookProperties) => {
   const styleFilename = join(__dirname, "./style.css");
   props.context.addDependency(styleFilename);
