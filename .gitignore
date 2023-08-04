@@ -1,4 +1,5 @@
 lib/index.d.ts
 lib/index.js
 lib/mermaid.min.js
+lib/katex.css
 node_modules

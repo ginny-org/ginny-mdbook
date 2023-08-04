@@ -1,12 +1,56 @@
 import { readFile } from "fs/promises";
 import { join } from "path";
-import { PageContext } from "ginny";
+import { PageContext, PageResult } from "ginny";
 import { marked } from "marked";
-import { mangle } from "marked-mangle";
 import { gfmHeadingId } from "marked-gfm-heading-id";
+import * as katex from "katex";
+import postcss from "postcss";
+const purgecss = require("@fullhuman/postcss-purgecss");
+const cssnano = require("cssnano");
 
-marked.use(mangle());
+marked.setOptions({ mangle: false });
 marked.use(gfmHeadingId());
+
+const mathMagicPrefix = "__math__:";
+const mathMagicSuffix = ":__math__";
+
+marked.use({
+  tokenizer: {
+    codespan(src) {
+      const match = src.match(/^([`$]+)([^`$]|[^`$][\s\S]*?[^`$])\1(?![`$])/);
+
+      if (!match) {
+        return false;
+      }
+
+      const raw = match[0];
+      const text = match[2].trim();
+      const isMath = raw[0] === "$";
+
+      return {
+        type: "codespan",
+        raw,
+        text: isMath ? `${mathMagicPrefix}${text}${mathMagicSuffix}` : text
+      };
+    },
+
+    inlineText(src) {
+      const cap = src.match(/^([`$]+|[^`$])(?:[\s\S]*?(?:(?=[\\<!\[`$*]|\b_|$)|[^ ](?= {2,}\n))|(?= {2,}\n))/);
+
+      if (!cap) {
+        return false;
+      }
+
+      const raw = cap[0];
+
+      return {
+        type: "text",
+        raw,
+        text: raw
+      };
+    }
+  }
+})
 
 marked.use({
   renderer: {
@@ -21,9 +65,24 @@ marked.use({
       </figure>`;
     },
 
+    codespan: (code) => {
+      if (code.startsWith(mathMagicPrefix) && code.endsWith(mathMagicSuffix)) {
+        return katex.renderToString(code.slice(mathMagicPrefix.length, -mathMagicSuffix.length), {
+          throwOnError: false
+        });
+      }
+
+      return `<code>${code}</code>`;
+    },
+
     code: (code, language) => {
       if (language === "mermaid") {
         return '<pre class="mermaid">' + code + '</pre>';
+      } else if (language === "math") {
+        return katex.renderToString(code, {
+          displayMode: true,
+          throwOnError: false
+        });
       } else {
         return '<pre><code>' + code + '</code></pre>';
       }
@@ -34,7 +93,7 @@ marked.use({
 /**
  * The MdBook component renders markdown files in a single page book format.
  */
-export default async (props: MdBookProperties) => {
+export default async (props: MdBookProperties): Promise<PageResult> => {
   const styleFilename = join(__dirname, "./style.css");
   props.context.addDependency(styleFilename);
 
@@ -47,6 +106,7 @@ export default async (props: MdBookProperties) => {
         const filepath = props.context.resolve(
           file + (file.endsWith(".md") ? "" : ".md")
         );
+
         const content = await readFile(filepath, { encoding: "utf-8" });
         props.context.addDependency(filepath);
 
@@ -57,13 +117,22 @@ export default async (props: MdBookProperties) => {
 
   const headingTracker = new HeadingTracker();
   let hasMermaid = false;
+  let hasKatex = false;
 
   const html = marked(content, {
     walkTokens: async (token) => {
       if (token.type === "heading") {
         headingTracker.push(new Heading(token.text, token.depth));
-      } else if (token.type === "code" && token.lang === "mermaid") {
-        hasMermaid = true;
+      } else if (token.type === "code") {
+        if (token.lang === "mermaid") {
+          hasMermaid = true;
+        }
+
+        if (token.lang === "math") {
+          hasKatex = true;
+        }
+      } else if (token.type === "codespan" && token.raw[0] === "$") {
+        hasKatex = true;
       }
     },
   });
@@ -77,9 +146,12 @@ export default async (props: MdBookProperties) => {
   });
 
   const mermaidFilename = join(__dirname, "./mermaid.min.js");
-  const mermaidjs = hasMermaid ? await readFile(mermaidFilename, { encoding: "utf-8" }) : null;
+  const mermaidjs = hasMermaid ? await readFile(mermaidFilename, "utf-8") : null;
 
-  return (
+  const katexCSSFilename = join(__dirname, "./katex.css");
+  const katexcss = hasKatex ? await readFile(katexCSSFilename, "utf-8") : null;
+
+  const rendered = (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
@@ -88,7 +160,7 @@ export default async (props: MdBookProperties) => {
           content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
         <title>{index.title}</title>
-        <style>{style}</style>
+        <style></style>
         {mermaidjs ? <script type="text/javascript">{mermaidjs}</script> : null}
         {props.context.isDevelopment ? (
           <script
@@ -115,7 +187,58 @@ export default async (props: MdBookProperties) => {
       </body>
     </html>
   );
+
+  return { filename: "index.html", content: rendered, postProcess: (html) => postProcessHTML(html, style, katexcss)  }
 };
+
+async function postProcessHTML(html: string, style: string, katexcss: string | null): Promise<string> {
+  const fullStyle = katexcss ? style + katexcss : style;
+
+  const result = await postcss([
+    purgecss({ content: [{ raw: html, extension: "html" }] }),
+    cssnano(),
+  ]).process(fullStyle, { from: undefined });
+
+  const css = removeUnusedKatexFontfaces(result.css, katexcss !== null);
+
+  return html.replace("<style></style>", `<style>${css}</style>`);
+}
+
+// Remove unused font faces. PurgeCSS doesn't do this correctly for katex fonts by itself
+function removeUnusedKatexFontfaces(css: string, hasKatex: boolean): string {
+  if (!hasKatex) {
+    return css;
+  }
+
+  // First remove all the font faces, then add them back by dumbly checking if the font name
+  // appears anywhere literal in the css.
+  const parsed = postcss.parse(css);
+  const fontFaces: postcss.AtRule[] = [];
+
+  parsed.walkAtRules("font-face", (atRule) => {
+    fontFaces.push(atRule);
+    atRule.remove();
+  });
+
+  const withoutFontFaces = parsed.toString();
+  const usedFontFaces = new Set<postcss.AtRule>();
+
+  for (const fontFace of fontFaces) {
+    fontFace.walkDecls("font-family", (decl) => {
+      const fontName = decl.value.replace(/^"(.*)"$/, "$1");
+
+      if (withoutFontFaces.includes(fontName)) {
+        usedFontFaces.add(fontFace);
+      }
+    });
+  }
+
+  for (const fontFace of usedFontFaces) {
+    parsed.prepend(fontFace);
+  }
+
+  return parsed.toString();
+}
 
 async function extractIndex(
   index: string | MdBookIndex | undefined,
