@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "description": "ginny MdBook example",
   "main": "src/index.tsx",
+  "directories": {
+    "lib": "html"
+  },
   "author": "Jesse van den Kieboom",
   "license": "ISC",
   "dependencies": {
     "ginny": "^0.3.0",
-    "ginny-mdbook": "^0.3.0"
+    "ginny-mdbook": "^0.3.1"
   }
 }
