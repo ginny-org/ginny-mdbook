@@ -23,7 +23,8 @@ The idea of MdBook is to take a set of markdown files that are usable on their o
 
 MdBook uses the [marked](https://github.com/markedjs/marked) markdown library to parse and format markdown files. Additional features on top of regular marked support:
 
-- `mermaid`: [mermaid](https://mermaid.js.org/) diagrams are support using a code block tagged with the `mermaid` language
+- `mermaid`: [mermaid](https://mermaid.js.org/) diagrams are support using a code block tagged with the `mermaid` language.
+- `katex`: [katex](https://katex.org/) is used to add support for rendering math. Use `$f(x) = x^2$` for inline math rendering, or a code block tagged with the `math` language for a block of math.
 - If images have a specified title (specified as a quoted text after the image file reference), then this image is rendered as a `<figure>` with a `<figcaption>`.
 
 ## Install
