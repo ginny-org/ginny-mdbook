@@ -37,7 +37,7 @@
     "typescript": "^5.1.6"
   },
   "peerDependencies": {
-    "ginny": "~0.3.0"
+    "ginny": "~0.3.5"
   },
   "dependencies": {
     "@fullhuman/postcss-purgecss": "^5.0.0",
