@@ -2,6 +2,9 @@
   "name": "ginny-mdbook",
   "version": "0.3.1",
   "description": "Single page markdown website ginny component",
+  "repository": {
+    "url": "https://github.com/ginny-org/ginny-mdbook"
+  },
   "main": "lib/index.js",
   "files": [
     "lib/*.js",
