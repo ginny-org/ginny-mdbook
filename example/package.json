@@ -9,7 +9,7 @@
   "author": "Jesse van den Kieboom",
   "license": "ISC",
   "dependencies": {
-    "ginny": "^0.3.5",
-    "ginny-mdbook": "^0.3.1"
+    "ginny": "^0.4.3",
+    "ginny-mdbook": "^0.4.1"
   }
 }
