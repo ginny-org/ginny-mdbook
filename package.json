@@ -1,6 +1,6 @@
 {
   "name": "ginny-mdbook",
-  "version": "0.3.1",
+  "version": "0.4.1",
   "description": "Single page markdown website ginny component",
   "repository": {
     "url": "https://github.com/ginny-org/ginny-mdbook"
@@ -37,7 +37,7 @@
     "typescript": "^5.1.6"
   },
   "peerDependencies": {
-    "ginny": "~0.3.5"
+    "ginny": "~0.4.3"
   },
   "dependencies": {
     "@fullhuman/postcss-purgecss": "^5.0.0",

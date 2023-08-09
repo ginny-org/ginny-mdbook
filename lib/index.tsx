@@ -1,6 +1,6 @@
 import { readFile } from "fs/promises";
 import { join } from "path";
-import { PageContext, PageResult } from "ginny";
+import { ContentContext, ContentResultJSX, FileResultJSX } from "ginny";
 import { marked } from "marked";
 import { gfmHeadingId } from "marked-gfm-heading-id";
 import * as katex from "katex";
@@ -93,7 +93,7 @@ marked.use({
 /**
  * The MdBook component renders markdown files in a single page book format.
  */
-export default async (props: MdBookProperties): Promise<PageResult> => {
+export default async (props: MdBookProperties): Promise<FileResultJSX> => {
   const styleFilename = join(__dirname, "./style.css");
   props.context.addDependency(styleFilename);
 
@@ -162,7 +162,7 @@ export default async (props: MdBookProperties): Promise<PageResult> => {
         <title>{index.title}</title>
         <style></style>
         {mermaidjs ? <script type="text/javascript">{mermaidjs}</script> : null}
-        {props.context.isDevelopment ? (
+        {props.context.isWatch ? (
           <script
             type="text/javascript"
             src="https://livejs.com/live.js"
@@ -188,7 +188,7 @@ export default async (props: MdBookProperties): Promise<PageResult> => {
     </html>
   );
 
-  return { filename: "index.html", content: rendered, postProcess: (html) => postProcessHTML(html, style, katexcss)  }
+  return { filename: "index.html", content: { node: rendered, postprocess: (html) => postProcessHTML(html, style, katexcss)  } }
 };
 
 async function postProcessHTML(html: string, style: string, katexcss: string | null): Promise<string> {
@@ -242,7 +242,7 @@ function removeUnusedKatexFontfaces(css: string, hasKatex: boolean): string {
 
 async function extractIndex(
   index: string | MdBookIndex | undefined,
-  context: PageContext
+  context: ContentContext
 ): Promise<MdBookIndex> {
   if (typeof index === "string") {
     return extractIndexFromFile([index], context);
@@ -257,7 +257,7 @@ async function extractIndex(
 
 async function extractIndexFromFile(
   tryFiles: string[],
-  context: PageContext
+  context: ContentContext
 ): Promise<MdBookIndex> {
   for (const file of tryFiles) {
     try {
@@ -362,7 +362,7 @@ class HeadingTracker {
  */
 export interface MdBookProperties {
   /** The ginny page context (automatically injected by ginny). */
-  context: PageContext;
+  context: ContentContext;
 
   /**
    * Index of the book. This can either:
