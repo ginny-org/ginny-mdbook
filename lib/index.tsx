@@ -1,12 +1,13 @@
 import { readFile } from "fs/promises";
 import { join } from "path";
-import { ContentContext, ContentResultJSX, FileResultJSX } from "ginny";
+import { ContentContext, FileResultJSX } from "ginny";
 import { marked } from "marked";
 import { gfmHeadingId } from "marked-gfm-heading-id";
 import * as katex from "katex";
 import postcss from "postcss";
-const purgecss = require("@fullhuman/postcss-purgecss");
-const cssnano = require("cssnano");
+import * as cssnano from "cssnano";
+
+type Purgecss = typeof import("@fullhuman/postcss-purgecss").default;
 
 marked.setOptions({ mangle: false });
 marked.use(gfmHeadingId());
@@ -35,7 +36,7 @@ marked.use({
     },
 
     inlineText(src) {
-      const cap = src.match(/^([`$]+|[^`$])(?:[\s\S]*?(?:(?=[\\<!\[`$*]|\b_|$)|[^ ](?= {2,}\n))|(?= {2,}\n))/);
+      const cap = src.match(/^([`$]+|[^`$])(?:[\s\S]*?(?:(?=[\\<![`$*]|\b_|$)|[^ ](?= {2,}\n))|(?= {2,}\n))/);
 
       if (!cap) {
         return false;
@@ -50,7 +51,7 @@ marked.use({
       };
     }
   }
-})
+});
 
 marked.use({
   renderer: {
@@ -77,17 +78,17 @@ marked.use({
 
     code: (code, language) => {
       if (language === "mermaid") {
-        return '<pre class="mermaid">' + code + '</pre>';
+        return '<pre class="mermaid">' + code + "</pre>";
       } else if (language === "math") {
         return katex.renderToString(code, {
           displayMode: true,
           throwOnError: false
         });
       } else {
-        return '<pre><code>' + code + '</code></pre>';
+        return "<pre><code>" + code + "</code></pre>";
       }
     }
-  },
+  }
 });
 
 /**
@@ -103,9 +104,7 @@ export default async (props: MdBookProperties): Promise<FileResultJSX> => {
   const content = (
     await Promise.all(
       index.files.map(async (file) => {
-        const filepath = props.context.resolve(
-          file + (file.endsWith(".md") ? "" : ".md")
-        );
+        const filepath = props.context.resolve(file + (file.endsWith(".md") ? "" : ".md"));
 
         const content = await readFile(filepath, { encoding: "utf-8" });
         props.context.addDependency(filepath);
@@ -134,7 +133,7 @@ export default async (props: MdBookProperties): Promise<FileResultJSX> => {
       } else if (token.type === "codespan" && token.raw[0] === "$") {
         hasKatex = true;
       }
-    },
+    }
   });
 
   const headings = headingTracker.root.children;
@@ -142,7 +141,7 @@ export default async (props: MdBookProperties): Promise<FileResultJSX> => {
   const dateFormatter = new Intl.DateTimeFormat("en-US", {
     month: "long",
     day: "numeric",
-    year: "numeric",
+    year: "numeric"
   });
 
   const mermaidFilename = join(__dirname, "./mermaid.min.js");
@@ -155,19 +154,11 @@ export default async (props: MdBookProperties): Promise<FileResultJSX> => {
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <title>{index.title}</title>
         <style></style>
         {mermaidjs ? <script type="text/javascript">{mermaidjs}</script> : null}
-        {props.context.isWatch ? (
-          <script
-            type="text/javascript"
-            src="https://livejs.com/live.js"
-          ></script>
-        ) : null}
+        {props.context.isWatch ? <script type="text/javascript" src="https://livejs.com/live.js"></script> : null}
       </head>
       <body>
         {mermaidjs ? <script type="text/javascript">mermaid.initialize({`{theme: "neutral"}`});</script> : null}
@@ -188,16 +179,24 @@ export default async (props: MdBookProperties): Promise<FileResultJSX> => {
     </html>
   );
 
-  return { filename: "index.html", content: { node: rendered, postprocess: (html) => postProcessHTML(html, style, katexcss)  } }
+  return {
+    filename: "index.html",
+    content: {
+      node: rendered,
+      postprocess: (html) => postProcessHTML(html, style, katexcss)
+    }
+  };
 };
 
 async function postProcessHTML(html: string, style: string, katexcss: string | null): Promise<string> {
   const fullStyle = katexcss ? style + katexcss : style;
 
-  const result = await postcss([
-    purgecss({ content: [{ raw: html, extension: "html" }] }),
-    cssnano(),
-  ]).process(fullStyle, { from: undefined });
+  const purgecss = (await import("@fullhuman/postcss-purgecss")) as unknown as Purgecss;
+
+  const result = await postcss([purgecss({ content: [{ raw: html, extension: "html" }] }), cssnano()]).process(
+    fullStyle,
+    { from: undefined }
+  );
 
   const css = removeUnusedKatexFontfaces(result.css, katexcss !== null);
 
@@ -240,10 +239,7 @@ function removeUnusedKatexFontfaces(css: string, hasKatex: boolean): string {
   return parsed.toString();
 }
 
-async function extractIndex(
-  index: string | MdBookIndex | undefined,
-  context: ContentContext
-): Promise<MdBookIndex> {
+async function extractIndex(index: string | MdBookIndex | undefined, context: ContentContext): Promise<MdBookIndex> {
   if (typeof index === "string") {
     return extractIndexFromFile([index], context);
   }
@@ -255,15 +251,12 @@ async function extractIndex(
   return index;
 }
 
-async function extractIndexFromFile(
-  tryFiles: string[],
-  context: ContentContext
-): Promise<MdBookIndex> {
+async function extractIndexFromFile(tryFiles: string[], context: ContentContext): Promise<MdBookIndex> {
   for (const file of tryFiles) {
     try {
       const filepath = context.resolve(file);
       const content = await readFile(filepath, {
-        encoding: "utf-8",
+        encoding: "utf-8"
       });
 
       context.addDependency(filepath);
@@ -283,23 +276,26 @@ async function extractIndexFromFile(
       });
 
       return index;
-    } catch {}
+    } catch {
+      // ignore, most likely file does not exist
+    }
   }
 
-  throw new Error(
-    `Could not find index file from candidates: ${tryFiles.join(", ")}`
-  );
+  throw new Error(`Could not find index file from candidates: ${tryFiles.join(", ")}`);
 }
 
 class Heading {
   id: string;
   children: Heading[] = [];
 
-  constructor(readonly title: string, readonly depth: number) {
+  constructor(
+    readonly title: string,
+    readonly depth: number
+  ) {
     this.id = title.toLowerCase().replace(/[^\w]+/g, "-");
   }
 
-  render(prefix: string, index: number): any {
+  render(prefix: string, index: number) {
     const numbering = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
 
     return (
@@ -307,9 +303,7 @@ class Heading {
         <a href={`#${this.id}`}>
           {numbering}. {this.title}
         </a>
-        {this.children.length ? (
-          <ol>{this.children.map((child, i) => child.render(numbering, i))}</ol>
-        ) : null}
+        {this.children.length ? <ol>{this.children.map((child, i) => child.render(numbering, i))}</ol> : null}
       </li>
     );
   }
@@ -330,10 +324,7 @@ class HeadingTracker {
 
     this.makeUniqueId(heading);
 
-    while (
-      this.parents.length > 0 &&
-      this.parents[this.parents.length - 1].depth >= heading.depth
-    ) {
+    while (this.parents.length > 0 && this.parents[this.parents.length - 1].depth >= heading.depth) {
       this.parents.pop();
     }
 
