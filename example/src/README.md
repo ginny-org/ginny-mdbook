@@ -1,6 +1,7 @@
 # ginny MdBook example
 
-- [Introduction](./chapters/introduction.md)
-- [Math](./chapters/math.md)
-- [Quotes](./chapters/quotes.md)
-- [Conclusion](./chapters/conclusion.md)
+- [Introduction](./introduction.md)
+- [Math](./math.md)
+- [Quotes](./quotes.md)
+- [Figures](./figures.md)
+- [Conclusion](./conclusion.md)

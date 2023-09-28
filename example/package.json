@@ -10,6 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "ginny": "^0.4.6",
-    "ginny-mdbook": "^0.4.6"
+    "ginny-mdbook": "^0.4.7"
   }
 }
