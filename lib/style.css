@@ -658,6 +658,7 @@ figure, figcaption {
 
 figcaption {
   font-size: 0.75em;
+  line-height: var(--line-height-sm);
 }
 
 figcaption::before {
