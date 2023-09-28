@@ -77,6 +77,9 @@ button {
   --color-addition-bg: #f0fff4;
   --color-deletion-fg: #b31d28;
   --color-deletion-bg: #ffeef0;
+  --color-note: rgb(9, 105, 218);
+  --color-important: rgb(130, 80, 223);
+  --color-warning: rgb(154, 103, 0);
   --color-em: #17c73e;
   --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial,
     sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
@@ -409,15 +412,83 @@ body {
   padding: var(--size-2) 0 var(--size-2) var(--size-7);
   color: var(--color-fg-3);
 }
+
 .content blockquote:before {
   position: absolute;
   top: 0;
   bottom: 0;
   left: 2px;
   display: block;
-  width: 1px;
+  width: 2px;
   background-color: var(--color-fg-5);
   content: '';
+}
+
+.content div.alert {
+  position: relative;
+  padding: var(--size-1) 0 var(--size-1) var(--size-3);
+  margin-top: var(--size-4);
+}
+
+.content div.alert p {
+  margin-top: 0;
+}
+
+.content div.alert svg {
+  margin-right: var(--size-1);
+}
+
+.content div.alert .alert-title {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.content div.alert.note .alert-title {
+  color: var(--color-note);
+}
+
+.content div.alert.warning .alert-title {
+  color: var(--color-warning);
+}
+
+svg.note {
+  fill: var(--color-note);
+}
+
+svg.important {
+  fill: var(--color-important);
+}
+
+svg.warning {
+  fill: var(--color-warning);
+}
+
+.content div.alert.important .alert-title {
+  color: var(--color-important);
+}
+
+.content div.alert:before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 2px;
+  display: block;
+  width: 2px;
+  background-color: var(--color-fg-5);
+  content: '';
+}
+
+.content div.alert.note:before {
+  background-color: var(--color-note);
+}
+
+.content div.alert.important:before {
+  background-color: var(--color-important);
+}
+
+.content div.alert.warning:before {
+  background-color: var(--color-warning);
 }
 
 .content ol,
