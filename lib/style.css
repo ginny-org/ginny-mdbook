@@ -77,9 +77,20 @@ button {
   --color-addition-bg: #f0fff4;
   --color-deletion-fg: #b31d28;
   --color-deletion-bg: #ffeef0;
-  --color-note: rgb(9, 105, 218);
-  --color-important: rgb(130, 80, 223);
-  --color-warning: rgb(154, 103, 0);
+  --alert-bg-alpha: 0.075;
+
+  --color-note-parts: 9, 105, 218;
+  --color-note: rgb(var(--color-note-parts));
+  --color-note-bg: rgba(var(--color-note-parts), var(--alert-bg-alpha));
+
+  --color-important-parts: 130, 80, 223;
+  --color-important: rgb(var(--color-important-parts));
+  --color-important-bg: rgba(var(--color-important-parts), var(--alert-bg-alpha));
+
+  --color-warning-parts: 154, 103, 0;
+  --color-warning: rgb(var(--color-warning-parts));
+  --color-warning-bg: rgba(var(--color-warning-parts), var(--alert-bg-alpha));
+
   --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial,
     sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
   --font-family-code: SFMono-Regular, Consolas, 'Liberation Mono', Menlo,
@@ -426,6 +437,19 @@ body {
   position: relative;
   padding: var(--size-1) 0 var(--size-1) var(--size-3);
   margin-top: var(--size-4);
+  font-size: var(--base-font-size-sm);
+}
+
+.content div.alert.note {
+  background-color: var(--color-note-bg);
+}
+
+.content div.alert.important {
+  background-color: var(--color-important-bg);
+}
+
+.content div.alert.warning {
+  background-color: var(--color-warning-bg);
 }
 
 .content div.alert p {
