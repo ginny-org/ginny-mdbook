@@ -80,7 +80,6 @@ button {
   --color-note: rgb(9, 105, 218);
   --color-important: rgb(130, 80, 223);
   --color-warning: rgb(154, 103, 0);
-  --color-em: #17c73e;
   --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial,
     sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
   --font-family-code: SFMono-Regular, Consolas, 'Liberation Mono', Menlo,
@@ -275,7 +274,6 @@ body {
 .content__inner > :not(pre) {
   overflow-wrap: break-word;
 }
-
 
 .content {
   counter-reset: chapter section subsection figures;
@@ -664,12 +662,6 @@ figcaption {
 figcaption::before {
   content: "Figure " counter(figures) ":";
   padding-right: var(--size-2);
-}
-
-em {
-  color: var(--color-em);
-  text-decoration: dashed underline;
-  font-style: normal;
 }
 
 @media print {
