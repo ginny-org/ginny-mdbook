@@ -67,10 +67,10 @@ marked.use({
   renderer: {
     image: (href, title, text) => {
       if (!title) {
-        return `<a href="${href}"><img src="${href}" alt="${text}"></a>`;
+        return `<p class="image-container"><a href="${href}"><img src="${href}" alt="${text}"></a></p>`;
       }
 
-      return `<figure>
+      return `<figure class="image-container">
         <a href="${href}"><img src="${href}" alt="${text}"></a>
         <figcaption>${marked.parseInline(title)}</figcaption>
       </figure>`;

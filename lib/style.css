@@ -674,6 +674,10 @@ figure {
   counter-increment: figures;
 }
 
+.image-container {
+  text-align: center;
+}
+
 figure, figcaption {
   text-align: center;
 }
