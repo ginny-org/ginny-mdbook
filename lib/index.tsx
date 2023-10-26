@@ -63,6 +63,8 @@ marked.use({
   }
 });
 
+const renderer = new marked.Renderer();
+
 marked.use({
   renderer: {
     image: (href, title, text) => {
@@ -74,6 +76,11 @@ marked.use({
         <a href="${href}"><img src="${href}" alt="${text}"></a>
         <figcaption>${marked.parseInline(title)}</figcaption>
       </figure>`;
+    },
+
+    link(href, title, text) {
+      const localHref = href?.replace(/^\.\/(.*\.md)(#.*)$/, "$2") ?? null;
+      return renderer.link(localHref, title, text);
     },
 
     codespan: (code) => {
