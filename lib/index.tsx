@@ -204,7 +204,12 @@ export default async (props: MdBookProperties): Promise<FileResultJSX> => {
         {props.context.isWatch ? <script type="text/javascript" src="https://livejs.com/live.js"></script> : null}
       </head>
       <body>
-        {mermaidjs ? <script type="text/javascript">mermaid.initialize({`{theme: "neutral"}`});</script> : null}
+        {mermaidjs ? (
+          <script type="text/javascript">
+            const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches; const
+            theme = isDarkMode ? "dark" : "neutral"; mermaid.initialize({`{theme}`});
+          </script>
+        ) : null}
         <main className="content">
           <div className="content__inner">
             <div className="book-title">{index.title}</div>
