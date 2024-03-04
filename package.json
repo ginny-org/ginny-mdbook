@@ -48,7 +48,6 @@
     "cssnano": "^6.0.1",
     "katex": "^0.16.8",
     "marked": "^5.0.1",
-    "marked-gfm-heading-id": "^3.0.4",
     "mermaid": "^10.4.0",
     "postcss": "^8.4.30"
   }

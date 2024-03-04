@@ -297,7 +297,7 @@ body {
 .content h1::before {
   counter-increment: chapter;
   content: counter(chapter) ". ";
-  padding-right: var(--size-4)
+  padding-right: var(--size-4);
 }
 
 .content h2 {
@@ -372,13 +372,14 @@ body {
 .header-link {
   display: inline-block;
   padding: 0 var(--size-4);
-  color: var(--color-fg-3);
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
+  color: transparent;
+  text-shadow: 0 0 var(--color-fg-3);
+  font-size: 0.7em;
+  vertical-align: bottom;
 }
 
 .header-link:hover {
-  color: var(--color-fg-2);
+  text-shadow: 0 0 var(--color-fg-2);
 }
 
 .content hr {

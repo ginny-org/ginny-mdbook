@@ -2,7 +2,6 @@ import { readFile } from "fs/promises";
 import { join } from "path";
 import { ContentContext, FileResultJSX } from "ginny";
 import { marked } from "marked";
-import { gfmHeadingId } from "marked-gfm-heading-id";
 import * as katex from "katex";
 import postcss from "postcss";
 import * as cssnano from "cssnano";
@@ -10,7 +9,6 @@ import * as cssnano from "cssnano";
 type Purgecss = typeof import("@fullhuman/postcss-purgecss").default;
 
 marked.setOptions({ mangle: false });
-marked.use(gfmHeadingId());
 
 const mathMagicPrefix = "__math__:";
 const mathMagicSuffix = ":__math__";
@@ -24,6 +22,19 @@ const icons = {
   important: `<svg class="important" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M0 1.75C0 .784.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v9.5A1.75 1.75 0 0 1 14.25 13H8.06l-2.573 2.573A1.458 1.458 0 0 1 3 14.543V13H1.75A1.75 1.75 0 0 1 0 11.25Zm1.75-.25a.25.25 0 0 0-.25.25v9.5c0 .138.112.25.25.25h2a.75.75 0 0 1 .75.75v2.19l2.72-2.72a.749.749 0 0 1 .53-.22h6.5a.25.25 0 0 0 .25-.25v-9.5a.25.25 0 0 0-.25-.25Zm7 2.25v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>`,
   warning: `<svg class="warning" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path d="M6.457 1.047c.659-1.234 2.427-1.234 3.086 0l6.082 11.378A1.75 1.75 0 0 1 14.082 15H1.918a1.75 1.75 0 0 1-1.543-2.575Zm1.763.707a.25.25 0 0 0-.44 0L1.698 13.132a.25.25 0 0 0 .22.368h12.164a.25.25 0 0 0 .22-.368Zm.53 3.996v2.5a.75.75 0 0 1-1.5 0v-2.5a.75.75 0 0 1 1.5 0ZM9 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"></path></svg>`
 };
+
+let headingTracker: HeadingTracker;
+
+marked.use({
+  headerIds: false,
+  renderer: {
+    heading(text, level) {
+      const heading = headingTracker.push(text, level);
+
+      return `<h${level} id="${heading.id}">${text}<a class="header-link" href="#${heading.id}">🔗</a></h${level}>\n`;
+    }
+  }
+});
 
 marked.use({
   tokenizer: {
@@ -157,15 +168,14 @@ export default async (props: MdBookProperties): Promise<FileResultJSX> => {
     )
   ).join("\n\n");
 
-  const headingTracker = new HeadingTracker();
   let hasMermaid = false;
   let hasKatex = false;
 
+  headingTracker = new HeadingTracker();
+
   const html = marked(content, {
     walkTokens: async (token) => {
-      if (token.type === "heading") {
-        headingTracker.push(new Heading(token.text, token.depth));
-      } else if (token.type === "code") {
+      if (token.type === "code") {
         if (token.lang === "mermaid") {
           hasMermaid = true;
         }
@@ -221,7 +231,7 @@ export default async (props: MdBookProperties): Promise<FileResultJSX> => {
           <div className="date">{dateFormatter.format()}</div>
         </div>
         <div className="menu">
-          <ol>{headings.map((heading, i) => heading.render("", i))}</ol>
+          <ol>{headings.map((heading, i) => heading.renderToc("", i))}</ol>
         </div>
       </body>
     </html>
@@ -333,17 +343,15 @@ async function extractIndexFromFile(tryFiles: string[], context: ContentContext)
 }
 
 class Heading {
-  id: string;
   children: Heading[] = [];
 
   constructor(
+    readonly id: string,
     readonly title: string,
-    readonly depth: number
-  ) {
-    this.id = title.toLowerCase().replace(/[^\w]+/g, "-");
-  }
+    readonly level: number
+  ) {}
 
-  render(prefix: string, index: number) {
+  renderToc(prefix: string, index: number, maxLevel = 3) {
     const numbering = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
 
     return (
@@ -351,28 +359,27 @@ class Heading {
         <a href={`#${this.id}`}>
           {numbering}. {this.title}
         </a>
-        {this.children.length ? <ol>{this.children.map((child, i) => child.render(numbering, i))}</ol> : null}
+        {this.children.length && this.level < maxLevel ? (
+          <ol>{this.children.map((child, i) => child.renderToc(numbering, i))}</ol>
+        ) : null}
       </li>
     );
   }
 }
 
 class HeadingTracker {
-  private parents: Heading[] = [new Heading("root", 0)];
+  private parents: Heading[] = [new Heading("root", "root", 0)];
   private ids = new Set<string>();
 
   get root(): Heading {
     return this.parents[0];
   }
 
-  push(heading: Heading): void {
-    if (heading.depth > 3) {
-      return;
-    }
+  push(title: string, level: number): Heading {
+    const id = this.addUniqueId(title.toLowerCase().replace(/[^\w]+/g, "-"));
+    const heading = new Heading(id, title, level);
 
-    this.makeUniqueId(heading);
-
-    while (this.parents.length > 0 && this.parents[this.parents.length - 1].depth >= heading.depth) {
+    while (this.parents.length > 0 && this.parents[this.parents.length - 1].level >= heading.level) {
       this.parents.pop();
     }
 
@@ -381,18 +388,19 @@ class HeadingTracker {
     }
 
     this.parents.push(heading);
+    return heading;
   }
 
-  private makeUniqueId(heading: Heading): void {
-    let id = heading.id;
+  private addUniqueId(id: string): string {
     let i = 1;
+    let uniqueId = id;
 
-    while (this.ids.has(id)) {
-      id = `${heading.id}-${i++}`;
+    while (this.ids.has(uniqueId)) {
+      uniqueId = `${id}-${i++}`;
     }
 
-    heading.id = id;
-    this.ids.add(id);
+    this.ids.add(uniqueId);
+    return uniqueId;
   }
 }
 
