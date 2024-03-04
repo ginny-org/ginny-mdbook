@@ -16,8 +16,5 @@
   "include": [
     "lib/index.tsx",
     "lib/types.d.ts"
-  ],
-  "ts-node": {
-    "swc": true
-  }
+  ]
 }
