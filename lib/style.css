@@ -291,7 +291,7 @@ body {
 }
 
 .content h1 {
-  counter-reset: section subsection;
+  counter-set: section 0 subsection 0;
 }
 
 .content h1::before {
@@ -301,7 +301,7 @@ body {
 }
 
 .content h2 {
-  counter-reset: subsection;
+  counter-set: subsection 0;
 }
 
 .content h2::before {
