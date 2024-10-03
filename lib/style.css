@@ -529,7 +529,7 @@ svg.warning {
   padding-bottom: 0;
 }
 
-.content ol li::marker {
+.content ol > li::marker {
   content: counters(list-item, ".") ". ";
 }
 
