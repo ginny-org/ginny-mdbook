@@ -7,11 +7,7 @@
     "jsx": "react",
     "jsxFactory": "Ginny.h",
     "moduleResolution": "node",
-    "types": [
-      "ginny"
-    ]
+    "types": ["ginny"]
   },
-  "include": [
-    "src/**/*.tsx"
-  ]
+  "include": ["src/**/*.tsx"]
 }

@@ -1,6 +1,6 @@
 # Math
 
-MdBook supports math through the katex library. You can use inline math using latex syntax ` $f(x) = x^2$ ` resulting in $f(x) = x^2$.
+MdBook supports math through the katex library. You can use inline math using latex syntax `$f(x) = x^2$` resulting in $f(x) = x^2$.
 
 For blocks of math, use the `math` language in a code block:
 

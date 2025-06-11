@@ -44,9 +44,11 @@ Once you have a ginny project setup to use MdBook, simply use `npx ginny` to gen
 ### MdBook component
 
 #### context property
+
 The context property contains the ginny `Context` instance, used to derive page context information
 
 #### index property
+
 This optional property can specify the markdown index file (by default this is `README.md`) or a user specified object containing an explicit title and list of markdown files to include. Typically reading the index from a markdown file is better because it keeps all the necessary information directly in markdown.
 
 ### Example

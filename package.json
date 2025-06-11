@@ -1,6 +1,6 @@
 {
   "name": "ginny-mdbook",
-  "version": "0.4.17",
+  "version": "0.4.18",
   "description": "Single page markdown website ginny component",
   "repository": {
     "url": "https://github.com/ginny-org/ginny-mdbook"
@@ -17,7 +17,8 @@
     "build:ts": "tsc",
     "build:copy:mermaid": "shx cp node_modules/mermaid/dist/mermaid.min.js lib/",
     "build:copy:katexcss": "tsx tasks/copyKatexCSS.ts",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test": "eslint . && prettier -c ."
   },
   "keywords": [
     "ginny",
@@ -27,28 +28,28 @@
   "author": "Jesse van den Kieboom",
   "license": "ISC",
   "devDependencies": {
-    "@types/katex": "^0.16.3",
-    "@types/marked": "^5.0.2",
-    "@types/node": "^20.7.0",
-    "@typescript-eslint/eslint-plugin": "^6.7.3",
-    "@typescript-eslint/parser": "^6.7.3",
-    "eslint": "^8.50.0",
-    "eslint-plugin-prettier": "^5.0.0",
+    "@eslint/js": "^9.28.0",
+    "@types/katex": "^0.16.7",
+    "@types/marked": "^6.0.0",
+    "@types/node": "^24.0.0",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^10.1.5",
     "npm-run-all": "^4.1.5",
-    "prettier": "^3.0.3",
-    "shx": "^0.3.4",
-    "tsx": "^4.7.1",
-    "typescript": "^5.2.2"
+    "prettier": "^3.5.3",
+    "shx": "^0.4.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.34.0"
   },
   "peerDependencies": {
-    "ginny": "~0.4.5"
+    "ginny": "~0.4.7"
   },
   "dependencies": {
-    "@fullhuman/postcss-purgecss": "^5.0.0",
-    "cssnano": "^6.0.1",
-    "katex": "^0.16.8",
-    "marked": "^5.0.1",
-    "mermaid": "^10.4.0",
-    "postcss": "^8.4.30"
+    "@fullhuman/postcss-purgecss": "^7.0.2",
+    "cssnano": "^7.0.7",
+    "katex": "^0.16.22",
+    "marked": "^15.0.12",
+    "mermaid": "^11.6.0",
+    "postcss": "^8.5.4"
   }
 }

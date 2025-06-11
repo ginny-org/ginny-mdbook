@@ -8,13 +8,7 @@
     "declaration": true,
     "jsx": "react",
     "jsxFactory": "Ginny.h",
-    "types": [
-      "ginny",
-      "node"
-    ]
+    "types": ["ginny", "node"]
   },
-  "include": [
-    "lib/index.tsx",
-    "lib/types.d.ts"
-  ]
+  "include": ["lib/index.tsx", "lib/types.d.ts"]
 }

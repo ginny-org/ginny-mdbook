@@ -8,8 +8,6 @@ import * as cssnano from "cssnano";
 
 type Purgecss = typeof import("@fullhuman/postcss-purgecss").default;
 
-marked.setOptions({ mangle: false });
-
 const mathMagicPrefix = "__math__:";
 const mathMagicSuffix = ":__math__";
 
@@ -26,12 +24,11 @@ const icons = {
 let headingTracker: HeadingTracker;
 
 marked.use({
-  headerIds: false,
   renderer: {
-    heading(text, level) {
-      const heading = headingTracker.push(text, level);
+    heading({ text, depth }) {
+      const heading = headingTracker.push(text, depth);
 
-      return `<h${level} id="${heading.id}">${text}<a class="header-link" href="#${heading.id}">🔗</a></h${level}>\n`;
+      return `<h${depth} id="${heading.id}">${text}<a class="header-link" href="#${heading.id}">🔗</a></h${depth}>\n`;
     }
   }
 });
@@ -78,7 +75,7 @@ const renderer = new marked.Renderer();
 
 marked.use({
   renderer: {
-    image: (href, title, text) => {
+    image: ({ href, title, text }) => {
       if (!title) {
         return `<p class="image-container"><a href="${href}"><img src="${href}" alt="${text}"></a></p>`;
       }
@@ -89,14 +86,14 @@ marked.use({
       </figure>`;
     },
 
-    link(href, title, text) {
-      const localHref = href?.replace(/^\.\/(.*\.md)(#.*)$/, "$2") ?? null;
-      return renderer.link(localHref, title, text);
+    link(token) {
+      token.href = token.href?.replace(/^\.\/(.*\.md)(#.*)$/, "$2") ?? null;
+      return renderer.link(token);
     },
 
-    codespan: (code) => {
-      if (code.startsWith(mathMagicPrefix) && code.endsWith(mathMagicSuffix)) {
-        return katex.renderToString(code.slice(mathMagicPrefix.length, -mathMagicSuffix.length), {
+    codespan: ({ text }) => {
+      if (text.startsWith(mathMagicPrefix) && text.endsWith(mathMagicSuffix)) {
+        return katex.renderToString(text.slice(mathMagicPrefix.length, -mathMagicSuffix.length), {
           throwOnError: false,
           strict: "ignore",
           macros,
@@ -104,11 +101,11 @@ marked.use({
         });
       }
 
-      return `<code>${code}</code>`;
+      return `<code>${text}</code>`;
     },
 
-    blockquote: (quote) => {
-      const alert = quote.match(/^<p>\[!(NOTE|IMPORTANT|WARNING)\]([\s\S]*)<\/p>$/m);
+    blockquote: ({ text }) => {
+      const alert = text.match(/^<p>\[!(NOTE|IMPORTANT|WARNING)\]([\s\S]*)<\/p>$/m);
       const type = alert?.[1]?.toLowerCase();
 
       if (alert && isAlertType(type)) {
@@ -124,14 +121,14 @@ marked.use({
         </div>`;
       }
 
-      return `<blockquote>${quote}</blockquote>`;
+      return `<blockquote>${text}</blockquote>`;
     },
 
-    code: (code, language) => {
-      if (language === "mermaid") {
-        return '<pre class="mermaid">' + code + "</pre>";
-      } else if (language === "math") {
-        return katex.renderToString(code, {
+    code: ({ text, lang }) => {
+      if (lang === "mermaid") {
+        return '<pre class="mermaid">' + text + "</pre>";
+      } else if (lang === "math") {
+        return katex.renderToString(text, {
           macros,
           strict: "ignore",
           displayMode: true,
@@ -139,7 +136,7 @@ marked.use({
           trust: true
         });
       } else {
-        return "<pre><code>" + code + "</code></pre>";
+        return "<pre><code>" + text + "</code></pre>";
       }
     }
   }
