@@ -75,7 +75,7 @@ const renderer = new marked.Renderer();
 
 marked.use({
   renderer: {
-    image: ({ href, title, text }) => {
+    image({ href, title, text }) {
       if (!title) {
         return `<p class="image-container"><a href="${href}"><img src="${href}" alt="${text}"></a></p>`;
       }
@@ -87,11 +87,15 @@ marked.use({
     },
 
     link(token) {
-      token.href = token.href?.replace(/^\.\/(.*\.md)(#.*)$/, "$2") ?? null;
+      if (token.href) {
+        token.href = token.href.replace(/^\.\/(.*\.md)(#.*)$/, "$2");
+      }
+
+      renderer.parser = this.parser;
       return renderer.link(token);
     },
 
-    codespan: ({ text }) => {
+    codespan({ text }) {
       if (text.startsWith(mathMagicPrefix) && text.endsWith(mathMagicSuffix)) {
         return katex.renderToString(text.slice(mathMagicPrefix.length, -mathMagicSuffix.length), {
           throwOnError: false,
@@ -104,7 +108,8 @@ marked.use({
       return `<code>${text}</code>`;
     },
 
-    blockquote: ({ text }) => {
+    blockquote({ text: lala, tokens }) {
+      const text = this.parser.parse(tokens);
       const alert = text.match(/^<p>\[!(NOTE|IMPORTANT|WARNING)\]([\s\S]*)<\/p>$/m);
       const type = alert?.[1]?.toLowerCase();
 
@@ -124,7 +129,7 @@ marked.use({
       return `<blockquote>${text}</blockquote>`;
     },
 
-    code: ({ text, lang }) => {
+    code({ text, lang }) {
       if (lang === "mermaid") {
         return '<pre class="mermaid">' + text + "</pre>";
       } else if (lang === "math") {
@@ -246,7 +251,7 @@ export default async (props: MdBookProperties): Promise<FileResultJSX> => {
 async function postProcessHTML(html: string, style: string, katexcss: string | null): Promise<string> {
   const fullStyle = katexcss ? style + katexcss : style;
 
-  const purgecss = (await import("@fullhuman/postcss-purgecss")) as unknown as Purgecss;
+  const purgecss = (await import("@fullhuman/postcss-purgecss")).default;
 
   const result = await postcss([purgecss({ content: [{ raw: html, extension: "html" }] }), cssnano()]).process(
     fullStyle,
