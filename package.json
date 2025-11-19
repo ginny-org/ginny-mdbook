@@ -1,6 +1,6 @@
 {
   "name": "ginny-mdbook",
-  "version": "0.4.19",
+  "version": "0.4.20",
   "description": "Single page markdown website ginny component",
   "repository": {
     "url": "https://github.com/ginny-org/ginny-mdbook"
